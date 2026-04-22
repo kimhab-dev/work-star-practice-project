@@ -46,13 +46,14 @@ const login = async (body) => {
 
     // get data when login success
     const [data] = await user.getById(row[0].id);
-    console.log(data);
 
     const token = jwt.sign(
         { id: data.id, name: data.name },
         jwtConfig.secret,
         { expiresIn: jwtConfig.expiresIn }
     );
+
+    await user.addToken({ token, id: data.id })
 
     return {
         user: data,
@@ -61,4 +62,14 @@ const login = async (body) => {
 
 }
 
-module.exports = { register, getAll, login }
+const getProfile = async (id) => {
+    const row = await user.getById(id);
+    return row;
+}
+
+const logout = async (id) => {
+    await user.logout(id);
+    return { message: "Logout successfully" }
+}
+
+module.exports = { register, getAll, login, getProfile, logout }

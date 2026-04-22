@@ -26,8 +26,6 @@ const getAll = async (req, res) => {
 const login = async (req, res) => {
     try {
         const row = await authService.login(req.body);
-        console.log(row);
-
         response.success(res, row, "Login successfully.")
     } catch (error) {
         console.log(error);
@@ -36,8 +34,23 @@ const login = async (req, res) => {
 }
 
 const getProfile = async (req, res) => {
-    console.log('controller');
+    try {
+        const userInfo = await authService.getProfile(req.user);
+        response.success(res, userInfo[0], "Get profile successfully.")
+
+    } catch (error) {
+        response.error(res, "Get profile fials.", error.message)
+    }
 
 }
 
-module.exports = { register, getAll, login, getProfile }
+const logout = async (req, res) => {
+    try {
+        const result = await authService.logout(req.user);
+        response.success(res, result.message)
+    } catch (error) {
+        response.error(res, "Logout fial.", error.message)
+    }
+}
+
+module.exports = { register, getAll, login, getProfile, logout }
