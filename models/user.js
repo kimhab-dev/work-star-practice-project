@@ -45,4 +45,20 @@ const findByTokenVerification = async (token) => {
 const verifyEmail = async (id) => {
     await pool.query('UPDATE users SET isVerifyEmail = 1 WHERE id = ?', [id]);
 }
-module.exports = { register, getById, getAll, findByEmail, addToken, findByToken, logout, findByTokenVerification, verifyEmail };
+
+const resendVerificatoin = async (body) => {
+    const data = [body.verificationToken, body.verificationTokenExpires, body.id];
+    await pool.query('UPDATE users SET verification_token = ?, verification_expires = ? WHERE id = ?', data)
+}
+module.exports = {
+    register,
+    getById,
+    getAll,
+    findByEmail,
+    addToken,
+    findByToken,
+    logout,
+    findByTokenVerification,
+    verifyEmail,
+    resendVerificatoin
+};

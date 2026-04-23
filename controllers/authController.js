@@ -6,6 +6,7 @@ const register = async (req, res) => {
         const row = await authService.register(req.body);
         response.success(res, row[0], "Register successfully.")
     } catch (error) {
+        console.log(error);
         response.error(res, "Register fail.", error.message)
     }
 }
@@ -62,4 +63,14 @@ const verificationEmail = async (req, res) => {
     }
 }
 
-module.exports = { register, getAll, login, getProfile, logout, verificationEmail }
+const resendVerification = async (req, res) => {
+    try {
+        const result = await authService.resendVerification(req.body.email);
+        response.success(res, result.message);
+    } catch (error) {
+        console.log(error);
+        response.error(res, "Resend verifcation fial.", error.message);
+    }
+}
+
+module.exports = { register, getAll, login, getProfile, logout, verificationEmail, resendVerification }

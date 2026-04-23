@@ -7,6 +7,10 @@ const user = require('../models/user');
 const mailService = require('../services/mailService')
 
 const register = async (body) => {
+    if (!body.email || !body.password) {
+        throw new Error("Email orr password is required.");
+
+    }
     const email = await user.findByEmail(body.email);
     if (email.length != 0) {
         throw new Error("Email already in use.");
@@ -108,4 +112,40 @@ const verificationEmail = async (token) => {
     return { message: "Verify email successfully." }
 }
 
-module.exports = { register, getAll, login, getProfile, logout, verificationEmail }
+const resendVerification = async (email) => {
+    if (!email) {
+        throw new Error("Email is required.");
+    }
+    const row = await user.findByEmail(email);
+    if (row.length == 0) {
+        throw new Error("Not yet have account. please register.");
+
+    }
+    if (row[0].isVerifyEmail) {
+        throw new Error("this email already verified.");
+    }
+    const verificationToken = await crypto.randomBytes(32).toString('hex');
+    // best recommand we sould store time be UTC
+    const verificationTokenExpires = new Date(Date.now() + 2 * 60 * 1000);
+
+    await user.resendVerificatoin({
+        verificationToken,
+        verificationTokenExpires,
+        id: row[0].id
+    });
+
+    await mailService.sendVerificationEmail(email, verificationToken);
+
+    return { message: "Resend verification successfully." }
+
+}
+
+module.exports = {
+    register,
+    getAll,
+    login,
+    getProfile,
+    logout,
+    verificationEmail,
+    resendVerification
+}
