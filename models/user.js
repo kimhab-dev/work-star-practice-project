@@ -1,8 +1,8 @@
 const pool = require('../config/db');
 
 const register = async (user) => {
-    const sql = 'INSERT INTO users (full_name, email, password) VALUES (?, ?, ?)';
-    const data = [user.full_name, user.email, user.password];
+    const sql = 'INSERT INTO users (full_name, email, password, verification_token, verification_expires) VALUES (?, ?, ?, ?, ?)';
+    const data = [user.full_name, user.email, user.password, user.verificationToken, user.verificationTokenExpires];
     const [result] = await pool.query(sql, data);
     return result.insertId;
 }
@@ -18,7 +18,7 @@ const getAll = async () => {
 }
 
 const findByEmail = async (email) => {
-    const [row] = await pool.query('SELECT id, email, password FROM users WHERE email = ?', [email]);
+    const [row] = await pool.query('SELECT id, email, password, isVerifyEmail FROM users WHERE email = ?', [email]);
     return row;
 }
 
@@ -36,4 +36,13 @@ const findByToken = async (token) => {
 const logout = async (id) => {
     await pool.query('UPDATE users SET token = null WHERE id = ?', [id]);
 }
-module.exports = { register, getById, getAll, findByEmail, addToken, findByToken, logout };
+
+const findByTokenVerification = async (token) => {
+    const [row] = await pool.query('SELECT id, verification_token, isVerifyEmail, verification_expires FROM users WHERE verification_token = ?', [token]);
+    return row;
+}
+
+const verifyEmail = async (id) => {
+    await pool.query('UPDATE users SET isVerifyEmail = 1 WHERE id = ?', [id]);
+}
+module.exports = { register, getById, getAll, findByEmail, addToken, findByToken, logout, findByTokenVerification, verifyEmail };

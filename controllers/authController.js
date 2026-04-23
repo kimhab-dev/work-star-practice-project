@@ -53,4 +53,13 @@ const logout = async (req, res) => {
     }
 }
 
-module.exports = { register, getAll, login, getProfile, logout }
+const verificationEmail = async (req, res) => {
+    try {
+        const result = await authService.verificationEmail(req.query.token);
+        response.success(res, result.message);
+    } catch (error) {
+        response.error(res, "Verify email fial.", error.message);
+    }
+}
+
+module.exports = { register, getAll, login, getProfile, logout, verificationEmail }
